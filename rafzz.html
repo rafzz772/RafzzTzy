@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RIRI - TT DOWN CP</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: crosshair; }
+
+        :root {
+            --cyan: #00f2ea;
+            --pink: #ff0050;
+            --dark-bg: rgba(10, 10, 20, 0.7);
+        }
+
+        body {
+            /* Background Foto tema Cyberpunk/Dark City biar gak polos */
+            background: url('https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=2070') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'DotGothic16', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: -1;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 420px;
+            text-align: center;
+            padding: 30px;
+            /* Border Gradasi Biru + Pink */
+            border: 3px solid;
+            border-image: linear-gradient(45deg, var(--cyan), var(--pink)) 1;
+            background: var(--dark-bg);
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 10;
+            box-shadow: 0 0 25px rgba(0, 242, 234, 0.2);
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 2.8rem;
+            color: #fff;
+            /* Shadow Patah-patah Biru + Pink */
+            text-shadow: 4px 4px var(--pink), 8px 8px var(--cyan);
+            margin-bottom: 20px;
+            letter-spacing: -2px;
+        }
+
+        .subtitle {
+            font-size: 0.75rem;
+            color: var(--cyan);
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        /* INPUT - Transparan Biru Neon */
+        input {
+            width: 100%;
+            padding: 15px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 2px solid var(--cyan);
+            color: var(--cyan);
+            font-family: 'DotGothic16', sans-serif;
+            margin-bottom: 20px;
+            outline: none;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: #fff;
+            box-shadow: 0 0 15px rgba(0, 242, 234, 0.5);
+            background: rgba(0, 242, 234, 0.05);
+        }
+
+        .btn-group { display: flex; gap: 15px; }
+
+        /* GHOST BUTTON BLUE & PINK */
+        button {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            font-family: 'DotGothic16', sans-serif;
+            font-size: 1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        /* Tombol MP4 (Biru) */
+        button.btn-mp4 {
+            border: 2px solid var(--cyan);
+            color: var(--cyan);
+        }
+        button.btn-mp4:hover {
+            background: var(--cyan);
+            color: #000;
+            box-shadow: 0 0 25px var(--cyan);
+            transform: translateY(-3px);
+        }
+
+        /* Tombol MP3 (Pink) */
+        button.btn-mp3 {
+            border: 2px solid var(--pink);
+            color: var(--pink);
+        }
+        button.btn-mp3:hover {
+            background: var(--pink);
+            color: #fff;
+            box-shadow: 0 0 25px var(--pink);
+            transform: translateY(-3px);
+        }
+
+        button:active { transform: scale(0.95); }
+
+        /* REACT EMOJI LOVE RIRI 💖 */
+        .emoji-react {
+            position: absolute;
+            font-size: 2rem;
+            pointer-events: none;
+            z-index: 99;
+            filter: drop-shadow(0 0 8px #fff);
+        }
+
+        .react-click { animation: flyUp 1s ease-out forwards; }
+        .react-rain { animation: rainUp 0.8s ease-out forwards; }
+
+        @keyframes flyUp {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            50% { opacity: 1; transform: translate(-50%, -100%) scale(1.2); }
+            100% { transform: translate(-50%, -200px) scale(1.5); opacity: 0; }
+        }
+
+        @keyframes rainUp {
+            0% { transform: translateY(0) scale(0.8); opacity: 1; }
+            100% { transform: translateY(-120px) scale(1.3); opacity: 0; }
+        }
+
+        /* RESULT & LOAD */
+        #loader { display: none; margin: 20px auto; color: var(--pink); font-size: 1rem; letter-spacing: 2px; }
+        
+        #result {
+            margin-top: 25px;
+            display: none;
+            border: 1px dashed var(--cyan);
+            padding: 15px;
+            animation: fadeIn 0.4s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .thumb {
+            width: 100px; height: 100px;
+            border: 2px solid var(--pink);
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+
+        /* Tombol Download Gradasi */
+        .dl-btn {
+            display: block;
+            margin-top: 15px;
+            border: 2px solid;
+            border-image: linear-gradient(to right, var(--cyan), var(--pink)) 1;
+            background: transparent;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .dl-btn:hover {
+            background: linear-gradient(to right, var(--cyan), var(--pink));
+            box-shadow: 0 0 20px rgba(0, 242, 234, 0.3);
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="overlay"></div>
+
+    <div class="container">
+        <h1>RIRI</h1>
+        <p class="subtitle">-- CYBER_PROTOCOL --</p>
+        
+        <input type="text" id="urlInput" placeholder="> LINK_TARGET_HERE">
+        
+        <div class="btn-group">
+            <button class="btn-mp4" onclick="proses('video')">GET_MP4</button>
+            <button class="btn-mp3" onclick="proses('audio')">GET_MP3</button>
+        </div>
+
+        <div id="loader">RUNNING_API_SCAN...</div>
+
+        <div id="result">
+            <img id="vImg" class="thumb" src="" alt="Thumb">
+            <p id="vTitle" style="font-size: 0.7rem; color: var(--pink);"></p>
+            <a id="vLink" href="#" target="_blank" class="dl-btn">DOWNLOAD_NOW</a>
+        </div>
+    </div>
+
+    <script>
+        // Efek Hujan 💖 Love Riri
+        function spawnLove() {
+            for(let i=0; i<10; i++) {
+                const e = document.createElement('div');
+                e.className = 'emoji-react react-rain';
+                e.innerText = '💖';
+                e.style.left = (Math.random() * 90 + 5) + '%';
+                e.style.bottom = '20px';
+                document.querySelector('.container').appendChild(e);
+                setTimeout(() => e.remove(), 900);
+            }
+        }
+
+        // Klik Global 💖
+        window.onclick = (e) => {
+            const hit = document.createElement('div');
+            hit.className = 'emoji-react react-click';
+            hit.innerText = '💖';
+            hit.style.left = e.pageX + 'px';
+            hit.style.top = e.pageY + 'px';
+            document.body.appendChild(hit);
+            setTimeout(() => hit.remove(), 1000);
+        }
+
+        async function proses(type) {
+            const link = document.getElementById('urlInput').value;
+            if(!link) return alert("TARGET NULL! 🗿");
+
+            spawnLove();
+            document.getElementById('loader').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+
+            try {
+                const res = await axios.get(`https://www.tikwm.com/api/?url=${encodeURIComponent(link)}`);
+                const data = res.data.data;
+
+                if(res.data.code === 0) {
+                    document.getElementById('vImg').src = data.cover;
+                    document.getElementById('vTitle').innerText = data.title.substring(0, 35) + "...";
+                    document.getElementById('vLink').href = (type === 'video' ? data.play : data.music);
+                    
+                    document.getElementById('loader').style.display = 'none';
+                    document.getElementById('result').style.display = 'block';
+                    spawnLove();
+                } else {
+                    alert("ERROR_FETCHING_DATA");
+                    document.getElementById('loader').style.display = 'none';
+                }
+            } catch (e) {
+                alert("CRITICAL_SYSTEM_ERROR");
+                document.getElementById('loader').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
